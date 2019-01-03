@@ -26,6 +26,7 @@ interface waveFormat {
   data_chunk_size: number,
 };
 
+
 class WaveCreator{
 
   public option;
@@ -42,14 +43,12 @@ class WaveCreator{
     var out:fs.WriteStream=fs.createWriteStream(fileName,'binary');
     
     this.writeHeader(out);
-    this.writeBody(out,4000);
-    this.writeBody(out,5000);
-    this.writeBody(out,6000);
-    this.writeBody(out,7000);
-    this.writeBody(out,8000);
-    this.writeBody(out,9000);
-    this.writeBody(out,10000);
-    this.writeBody(out,11000);
+    this.writeBody(out,523.251);
+    this.writeBody(out,587.330);
+    this.writeBody(out,659.255);
+    this.writeBody(out,698.456);
+    this.writeBody(out,783.99);
+    this.writeBody(out,880);
 
     out.close();
   }
@@ -86,15 +85,24 @@ class WaveCreator{
   private writeBody(stream:fs.WriteStream,hz:number=440){
     const sample=44100;
     var buff=Buffer.alloc(sample*2,null,'binary');
-
+    var signalLength:number=sample/hz;
     var signalHz:number=sample / hz;
     var signalHalf=signalHz/2.0;
 
-    for(var i=0;i<sample;i++){
+    for(var x=0;x<sample;x++){
       
-      var y =Math.ceil(Math.sin(Math.PI*2 * (i/signalHalf))*0x7FFF);
+      //var y =Math.round(Math.sin(Math.PI*2 * 
+      //(x/signalHalf)
+      //)*0x7FFF);
 
-      buff.writeInt16LE(y,i<<1);
+      var y =Math.round(
+        Math.sin(
+          Math.PI*2 
+          * (x/signalLength)
+          )
+        *0x7FFF);
+
+      buff.writeInt16LE(y,x<<1);
       /*
       if(sigMod==0){
         buff.writeInt16LE(0x7FFF,i<<1);
