@@ -1,5 +1,5 @@
 import * as fs from "fs"
-import foerier from "./foerier"
+import * as FT from "../fourier"
 
 
 
@@ -47,21 +47,20 @@ function readHeader(
 
       var header = {
         chunk_type: buff.slice(0, 4).toString(),
-        chunk_size: buff.slice(4, 8).readUInt32LE(0),
+        chunk_size: buff.readUInt32LE(4),
         format: buff.slice(8, 12).toString(),
         subchunk_type: buff.slice(12, 16).toString(),
-        subchunk_size: buff.slice(16, 20).readUInt32LE(0),
-        sound_format: buff.slice(20, 22).readUInt16LE(0),
-        channels: buff.slice(22, 24).readInt16LE(0),
-        sampling_rate: buff.slice(24, 28).readInt32LE(0),
-        data_speed: buff.slice(28, 32).readInt32LE(0),
-        sampling_block_bytes: buff.slice(32, 34).readInt16LE(0),
-        sampling_bit: buff.slice(34, 36).readInt16LE(0),
+        subchunk_size: buff.readUInt32LE(16),
+        sound_format: buff.readUInt16LE(20),
+        channels: buff.readInt16LE(22),
+        sampling_rate: buff.readInt32LE(24),
+        data_speed: buff.readInt32LE(28),
+        sampling_block_bytes: buff.readInt16LE(32),
+        sampling_bit: buff.readInt16LE(34),
         option_size: null,
         option_data: null,
         data_chunk: buff.slice(36, 40).toString(),//data固定
         data_chunk_size:buff.readUInt32LE(40)//data固定
-
       }
       next(fileName, header);
 
@@ -99,11 +98,16 @@ function readBody(
     for(var i=0,index=0;
       i < format.sampling_rate;
       i++,index+=format.sampling_block_bytes){
-      
-      floats[i]=buff.readInt16LE(index) / (1<<15);
+      floats[i]=buff.readInt16LE(index)/(1<<15);
       
     }
-    foerier(floats);
+
+    FT.fourier(
+      floats.slice(
+        9980,
+        9980+(floats.length>>9)
+        )
+    );
         
     console.log("wav done");
   });

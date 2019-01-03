@@ -15,6 +15,7 @@ export function squareWalk(
   ) => void
     = (y) => console.log(`END[${y}]`)
 ) {
+  
   input.forEach((D: number, Y) => {
     rowBeginfunc(Y);
     input.forEach((D: number, X) => {
