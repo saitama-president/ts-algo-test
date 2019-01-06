@@ -1,6 +1,5 @@
 import * as fs from "fs"
 import * as FT from "../fourier"
-import * as child_process from "child_process"
 import {Transform,Readable} from "stream"
 
 //13バイト目から24バイト
@@ -38,19 +37,47 @@ interface WAVEFORMATEXTENSIBLE {
 
 export default class WaveParser extends Transform{ 
   private header:FormatChunk =undefined;
+  private parseSetting:{
 
-  public transform(chunk:Buffer, encoding:string, next:()=>void) {
+  }={};
+
+  public constructor(options:{
+    second:number
+  }={
+    second:0.1
+  }){
+    super();
+  }
+
+  public transform(chunk:Buffer,encoding:string, next:()=>void) {
     var offset =0;
+    var floats:number[]=[];
     if(!this.header){
       this.header=this.readFormatChunk(chunk.slice(12,12+24));
       console.error(this.header);
       offset=40;
       //ここで解析条件を生成する
+      var skip=this.header.wBlockAlign/this.header.wChannels;
+
+      for(var i=40;i<40+skip*20;i+=this.header.wBlockAlign){
+        floats.push(chunk.readInt32LE(i)/(1<<31));
+      }
+
+      var result:FT.fourierResult=FT.FullFourier(floats);
+      
+      
+      for(var i=0;i<10;i++){
+        console.error(result[i]);
+      }
+      //console.error(FT.FullFourier(floats));
+      //console.error();
     }
+    
     this.push(chunk,"binary");
     next();
   }
 
+  //最後に呼ばれる
   public flush(next:()=>void) {
     next();
   }
@@ -61,17 +88,6 @@ export default class WaveParser extends Transform{
   public _flush(next:()=>void) {
     this.flush(next);
   }
-
-
-  
-  private events:{
-    [key:string]:()=>void
-    }
-  ={
-    "e":()=>{},
-    "a":()=>{},
-  };
-
 
   private readFormatChunk(buff:Buffer):FormatChunk{
     return {
