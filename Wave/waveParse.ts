@@ -1,119 +1,89 @@
 import * as fs from "fs"
 import * as FT from "../fourier"
+import * as child_process from "child_process"
+import {Transform,Readable} from "stream"
 
+//13バイト目から24バイト
+interface FormatChunk{
+  chunkID:string,//string4
+  chunkSize:number,//long 
+  wFormatTag:number,//short
+  wChannels:number,//short
+  dwSamplesPerSec:number,//long
+  dwAvgBytesPerSec:number,//long
+  wBlockAlign:number,//short
+  wBitsPerSample:number, //short
+} ;
 
-
-const file=process.argv[2];
-
-interface waveFormat {
-  chunk_type: string,
-  chunk_size: number,
-  format: string,
-  subchunk_type: string,
-  subchunk_size: number,
-  sound_format: number,
-  channels: number,
-  sampling_rate: number,
-  data_speed: number,
-  sampling_block_bytes: number,
-  sampling_bit: number,
-  option_size: null,
-  option_data: null,
-  data_chunk: string,
-  data_chunk_size: number,
-};
-
-function readHeader(
-  fileName: string,
-  next: (
-    file_name: string,
-    header: waveFormat
-  ) => void
-) {
-  fs.createReadStream(
-    fileName,
-    {
-      start: 0,
-      end: 43,
-      encoding: 'binary',
-      highWaterMark: 44
-    }
-  )
-    .on('data', (chunk) => {
-      //console.log(chunk.length);
-      var buff = Buffer.alloc(
-        chunk.length, chunk,
-        'binary');
-
-      var header = {
-        chunk_type: buff.slice(0, 4).toString(),
-        chunk_size: buff.readUInt32LE(4),
-        format: buff.slice(8, 12).toString(),
-        subchunk_type: buff.slice(12, 16).toString(),
-        subchunk_size: buff.readUInt32LE(16),
-        sound_format: buff.readUInt16LE(20),
-        channels: buff.readInt16LE(22),
-        sampling_rate: buff.readInt32LE(24),
-        data_speed: buff.readInt32LE(28),
-        sampling_block_bytes: buff.readInt16LE(32),
-        sampling_bit: buff.readInt16LE(34),
-        option_size: null,
-        option_data: null,
-        data_chunk: buff.slice(36, 40).toString(),//data固定
-        data_chunk_size:buff.readUInt32LE(40)//data固定
-      }
-      next(fileName, header);
-
-    })
-    .on("end", () => {
-      console.log("END...");
-    }
-    )
-    ;
+interface WAVEFORMATEX{
+    wFormatTag:number,//uint16
+    nChannels:number,//uint16
+    nSamplesPerSec:number,//uint32 ; 
+    nAvgBytesPerSec:number,//uint32 ; 
+    nBlockAlign:number,//uint16 ; 
+    wBitsPerSample:number,//uint16 ;  
+    cbSize:number,//uint16 ; ; 
 }
 
-function readBody(
-  fileName: string,
-  format: waveFormat) {
-  console.log("wav reader!");
-  fs.createReadStream(
-    fileName,
-    {
-      start: 44,
-      end:44+format.data_speed-1,//1秒
-      encoding: 'binary',
-      highWaterMark: format.data_speed
-    }
-  ).on("data",(chunk)=>{
-    console.log(chunk.length);
-    var buff = Buffer.alloc(
-      chunk.length,
-      chunk,
-      'binary');
-    console.log(format);
-     console.log(chunk.length);
-    
-    let floats:number[]=new Array(format.sampling_rate);
+interface WAVEFORMATEXTENSIBLE {
+  Format:WAVEFORMATEX,
+  wValidBitsPerSample:number,//int16
+  wSamplesPerBlock:number,//int16
+  wReserved:number,//int16
 
-    for(var i=0,index=0;
-      i < format.sampling_rate;
-      i++,index+=format.sampling_block_bytes){
-      floats[i]=buff.readInt16LE(index)/(1<<15);
-      
-    }
+  dwChannelMask:number, //int16
+  SubFormat:number
+} 
 
-    FT.fourier(
-      floats.slice(
-        9980,
-        9980+(floats.length>>9)
-        )
-    );
-        
-    console.log("wav done");
-  });
+
+export default class WaveParser extends Transform{ 
+  private header:FormatChunk =undefined;
+
+  public transform(chunk:Buffer, encoding:string, next:()=>void) {
+    var offset =0;
+    if(!this.header){
+      this.header=this.readFormatChunk(chunk.slice(12,12+24));
+      console.error(this.header);
+      offset=40;
+      //ここで解析条件を生成する
+    }
+    this.push(chunk,"binary");
+    next();
+  }
+
+  public flush(next:()=>void) {
+    next();
+  }
+  public _transform(chunk:Buffer, encoding:string, next:()=>void) {
+    this.transform(chunk,encoding,next);
+  }
+ 
+  public _flush(next:()=>void) {
+    this.flush(next);
+  }
+
+
+  
+  private events:{
+    [key:string]:()=>void
+    }
+  ={
+    "e":()=>{},
+    "a":()=>{},
+  };
+
+
+  private readFormatChunk(buff:Buffer):FormatChunk{
+    return {
+      chunkID:buff.slice(0,4).toString(),//string4
+      chunkSize:buff.readUInt32LE(4),//long 
+      wFormatTag:buff.readUInt16LE(8),//short
+      wChannels:buff.readUInt16LE(10),//short
+      dwSamplesPerSec:buff.readUInt32LE(12),//long
+      dwAvgBytesPerSec:buff.readUInt32LE(16),//long
+      wBlockAlign:buff.readUInt16LE(20),//short
+      wBitsPerSample:buff.readUInt16LE(22), //short    
+    };
+  }
+
 }
-
-console.log(process.argv);
-
-readHeader(file,readBody);
-
