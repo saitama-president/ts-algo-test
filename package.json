@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --reporter tap --recursive --require ts-node/register 'tests/*.ts'" ,
+    "format": "prettier --write './**/*.ts'"
+    
   },
   "author": "",
   "license": "ISC",
@@ -14,13 +16,10 @@
     "@types/node": "^10.12.18",
     "@types/typescript": "^2.0.0",
     "chai": "^4.2.0",
-    "fast-math": "^1.0.2",
-    "fmath": "^1.0.1",
     "fs": "0.0.1-security",
     "mocha": "^5.2.0",
     "node-record-lpcm16": "^0.3.1",
     "prettier": "^1.15.3",
-    "typescript": "^3.2.2",
-    "zlib": "^1.0.5"
+    "typescript": "^3.2.2"
   }
 }
