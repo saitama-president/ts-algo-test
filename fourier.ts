@@ -1,6 +1,5 @@
 import { squareWalk } from "./functions";
 
-//console.dir(fMath.cos(1));
 export interface fourierResult{
   [key:number]:{
     real:number,
@@ -10,6 +9,7 @@ export interface fourierResult{
 
 export function FullFourier(input: number[]):fourierResult{
   const markStart = Date.now();
+
   var N: number = input.length ;
   let real: number = 0;
   let imaginal: number = 0;
@@ -37,12 +37,28 @@ export function FullFourier(input: number[]):fourierResult{
       };
     }
   );
-  console.error(`TOTAL COST = ${cost}`);
-  console.error(`TIME = ${Date.now() - markStart}msec`);
+//  console.error(`TOTAL COST = ${cost}`);
+//  console.error(`TIME = ${Date.now() - markStart}msec`);
   return result;
 };
 
 
-export function fastFourier(input: number[], density: number = 0.1, filter: number = 10) {
+export function fastFourier(input: number[], sample_rate: number = 0.01, filter: number = 10) {
+ 
+  var buff:number[]=[];
 
+  //削ってから
+  for(var i=0;i<input.length;i+= (1 /sample_rate)  ){
+    i=Math.round(i);
+    buff.push(input[i]);
+  }
+
+  //フル解析に掛ける
+  var result:fourierResult=FullFourier();
+  var remaped:fourierResult={};
+
+  //その後リマップする
+  Object.keys(result).forEach((key)=>{
+    console.log(key + "は" + obj[key] + "と鳴いた！");
+  });
 }
