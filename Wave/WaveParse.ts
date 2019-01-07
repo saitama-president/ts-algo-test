@@ -56,33 +56,43 @@ export default class WaveParser extends Transform {
       console.error(this.header);
       offset = 40;
     }
-    var skip = this.header.wBlockAlign / this.header.wChannels;
+    //以下　読み取り
+
     for (var i = offset; 
-          i < offset + skip * 20; 
+          i < chunk.length; 
           i += this.header.wBlockAlign
       ) {
+        switch(this.header.wBitsPerSample){
+
+        }
+      //switch(this.he);
       floats.push(chunk.readInt32LE(i) / (1 << 31));
     }
-    var result: FT.fourierResult = FT.FullFourier(floats);
+    var result: FT.fourierResult[] = FT.FastFourier(floats);
 
-    for (var i = 0; i < 10; i++) {
-      console.error(result[i]);
-    }
+    /**
+     * 結果をどう解析するか　ここから
+     * 
+     * 
+     * 
+     * 
+     */
 
     this.push(chunk, "binary");
-    next();
+    return next();
   }
 
   //最後に呼ばれる
   public flush(next: () => void) {
-    next();
+    return next();
   }
   public _transform(chunk: Buffer, encoding: string, next: () => void) {
-    this.transform(chunk, encoding, next);
+    return this.transform(chunk, encoding, next);
   }
 
   public _flush(next: () => void) {
-    this.flush(next);
+    console.error("_PARSE_F_");
+    return this.flush(next);
   }
 
   private readFormatChunk(buff: Buffer): FormatChunk {

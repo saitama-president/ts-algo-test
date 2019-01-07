@@ -16,6 +16,7 @@
     "@types/node": "^10.12.18",
     "@types/typescript": "^2.0.0",
     "chai": "^4.2.0",
+    "dev-null": "^0.1.1",
     "dotenv": "^6.2.0",
     "fs": "0.0.1-security",
     "mocha": "^5.2.0",

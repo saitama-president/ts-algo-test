@@ -1,3 +1,11 @@
+
+/**
+ * O^2 を実行する
+ * @param input 
+ * @param rowBeginfunc 
+ * @param cellfunc 
+ * @param rowEndfunc 
+ */
 export function squareWalk(
   input: number[],
   rowBeginfunc: (
@@ -25,8 +33,22 @@ export function squareWalk(
   });
 
 }
+/**
+ * O / N * N を実行する（折りたたみ繰り返し）
+ */
+export function foldingWalk(
+  input:number[],
+  foldSize:number,
+  rowBeginfunc:(y:number)=>void,
+  cellfunc:(x:number,y:number)=>void,
+  rowEndfunc:(y:number)=>void
+){
 
-export function wavFile2array(filepath:string){
-
+  for(var i=0,Y=0;i<input.length;i+=foldSize,Y++){
+    rowBeginfunc(Y);
+    for(var X=0;X<foldSize;X++){
+      cellfunc(X,Y);
+    }
+    rowEndfunc(Y);
+  }
 }
-

@@ -1,4 +1,4 @@
-import { squareWalk } from "./functions";
+import { squareWalk,foldingWalk } from "./functions";
 
 export interface fourierResult{
   [key:number]:{
@@ -43,22 +43,32 @@ export function FullFourier(input: number[]):fourierResult{
 };
 
 
-export function fastFourier(input: number[], sample_rate: number = 0.01, filter: number = 10) {
- 
+export function FastFourier(input: number[], sample_count: number = 256):
+fourierResult[] 
+{
+  var result:fourierResult[]=[];
   var buff:number[]=[];
 
-  //削ってから
-  for(var i=0;i<input.length;i+= (1 /sample_rate)  ){
-    i=Math.round(i);
-    buff.push(input[i]);
-  }
 
-  //フル解析に掛ける
-  var result:fourierResult=FullFourier();
-  var remaped:fourierResult={};
+  foldingWalk(input,sample_count,
+      y=>{
+        buff=[];
+      },
+      (x,y)=>{
+        var index=x+(y*sample_count);
+/*        if(!input[index]){
+          console.error(`undef X=${x} Y=${y} ${x+(y*sample_count)}`);
+        }
+*/        
+        buff.push(input[index]?input[index]:0)
+      },
+      y=>{
+        result.push(FullFourier(buff));
+        //足す
+      //  console.log(`${y}:PUSH ${buff.length}`);
+      //  console.error(buff);
+      }
+    );
 
-  //その後リマップする
-  Object.keys(result).forEach((key)=>{
-    console.log(key + "は" + obj[key] + "と鳴いた！");
-  });
+  return result;
 }

@@ -18,7 +18,7 @@ export default class WaveChanger extends Transform {
   }
 
   public flush(next: () => void) {
-    //console.error("_F_");
+    console.error("_CHANGE_F_");
     next();
   }
   public _transform(chunk: Buffer, encoding: string, next: () => void) {
