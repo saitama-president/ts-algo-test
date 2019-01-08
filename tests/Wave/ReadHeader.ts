@@ -6,19 +6,23 @@ import Wave from "../../Wave/Wave";
 import * as fs from "fs"
 
 
-dotenv.config();
-describe(
-"WaveParserのテスト",()=>{
-  it("サンプルWavファイルを読み込む",
-    ()=>{
-    fs.createReadStream(__dirname+"/../../sample-data/test-out.wav",'binary')
+//dotenv.config();
+//describe(
+//"WaveParserのテスト",()=>{
+//  it("サンプルWavファイルを読み込む",
+//    ()=>{
+    fs.createReadStream(__dirname+"/../../sample-data/test-out.wav",{
+      encoding:'binary',
+      start:0
+
+    })
     .pipe(Wave.Parser())
     .pipe(fs.createWriteStream("/dev/null"));
-    assert(true);
+//    assert(true);
     
-  });
+//  });
 
-});
+//});
 
 
 

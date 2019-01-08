@@ -104,12 +104,12 @@ export default class WaveParser extends Transform {
     return {
       chunkID: buff.slice(0, 4).toString(), //string4
       chunkSize: buff.readUInt32LE(4), //long
-      wFormatTag: buff.readUInt16LE(8), //short
-      wChannels: buff.readUInt16LE(10), //short
-      dwSamplesPerSec: buff.readUInt32LE(12), //long
-      dwAvgBytesPerSec: buff.readUInt32LE(16), //long
-      wBlockAlign: buff.readUInt16LE(20), //short
-      wBitsPerSample: buff.readUInt16LE(22) //short
+      wFormatTag: buff.readUInt16LE(8), //short > 20  2
+      wChannels: buff.readUInt16LE(10), //short > 2
+      dwSamplesPerSec: buff.readUInt32LE(12), //long >4
+      dwAvgBytesPerSec: buff.readUInt32LE(16), //long > 4
+      wBlockAlign: buff.readUInt16LE(20), //short > 2
+      wBitsPerSample: buff.readUInt16LE(22) //short >2
     };
   }
 }
