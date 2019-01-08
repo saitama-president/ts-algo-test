@@ -7,20 +7,18 @@ import * as fs from "fs"
 
 
 dotenv.config();
-/*
-describe("TEST",()=>{
-  it("IT",
+describe(
+"WaveParserのテスト",()=>{
+  it("サンプルWavファイルを読み込む",
     ()=>{
-
+    fs.createReadStream(__dirname+"/../../sample-data/test-out.wav",'binary')
+    .pipe(Wave.Parser())
+    .pipe(fs.createWriteStream("/dev/null"));
     assert(true);
     
   });
 
 });
-*/
 
-process.stdin
-.pipe(Wave.Parser())
-//.pipe(Wave.Changer())
-//.pipe(process.stdout)
-.pipe(fs.createWriteStream("/dev/null"));
+
+

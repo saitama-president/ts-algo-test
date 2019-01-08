@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter tap --recursive --require ts-node/register 'tests/*.ts'",
+    "test": "mocha --reporter tap --recursive --require ts-node/register 'tests/**/*.ts'",
     "format": "prettier --write './**/*.ts'"
   },
   "author": "",

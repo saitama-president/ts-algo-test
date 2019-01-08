@@ -1,6 +1,6 @@
 import WaveCreator from "./WaveCreator";
 import WaveRecorder from "./WaveRecorder";
-import WaveParser from "./waveParse";
+import WaveParser from "./WaveParse";
 import WaveChanger from "./WaveChanger";
 
 export default class Wave {

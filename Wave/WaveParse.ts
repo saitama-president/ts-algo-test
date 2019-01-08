@@ -63,10 +63,15 @@ export default class WaveParser extends Transform {
           i += this.header.wBlockAlign
       ) {
         switch(this.header.wBitsPerSample){
-
         }
       //switch(this.he);
-      floats.push(chunk.readInt32LE(i) / (1 << 31));
+      var vol:number=
+      {
+        8:chunk.readInt8(i)/ (1 << 7),
+        16:chunk.readInt16LE(i) / (1 << 15),
+        32:chunk.readInt32LE(i) / (1 << 31)
+      }[this.header.wBitsPerSample];
+      floats.push(vol);
     }
     var result: FT.fourierResult[] = FT.FastFourier(floats);
 
