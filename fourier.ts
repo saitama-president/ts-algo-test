@@ -66,9 +66,9 @@ fourierResult[]
         result.push(FullFourier(buff));
         //足す
       //  console.log(`${y}:PUSH ${buff.length}`);
-      //  console.error(buff);
+       // console.error(`--${y}--`);
       }
     );
-
+  console.error(`<<-FINE->>`);
   return result;
 }

@@ -42,8 +42,8 @@ export default class WaveParser extends Transform {
     options: {
       second: number;
     } = {
-      second: 0.1
-    }
+        second: 0.1
+      }
   ) {
     super();
   }
@@ -52,25 +52,26 @@ export default class WaveParser extends Transform {
     var offset = 0;
     var floats: number[] = [];
     if (!this.header) {
+
       this.header = this.readFormatChunk(chunk.slice(12, 12 + 24));
       console.error(this.header);
+      console.error(encoding);
+      console.error(chunk.length);
       offset = 40;
     }
     //以下　読み取り
 
-    for (var i = offset; 
-          i < chunk.length; 
-          i += this.header.wBlockAlign
-      ) {
-        switch(this.header.wBitsPerSample){
-        }
-      //switch(this.he);
-      var vol:number=
-      {
-        8:chunk.readInt8(i)/ (1 << 7),
-        16:chunk.readInt16LE(i) / (1 << 15),
-        32:chunk.readInt32LE(i) / (1 << 31)
-      }[this.header.wBitsPerSample];
+    for (var i = offset;
+      i < chunk.length;
+      i += this.header.wBlockAlign
+    ) {
+
+      var vol: number;
+      switch (this.header.wBitsPerSample) {
+        case 8: vol = chunk.readInt8(i) / (1 << 7); break;
+        case 16: vol = chunk.readInt16LE(i) / (1 << 15); break;
+        case 32: vol = chunk.readInt32LE(i) / (1 << 31); break;
+      }
       floats.push(vol);
     }
     var result: FT.fourierResult[] = FT.FastFourier(floats);
